@@ -105,6 +105,8 @@
 &lt;p&gt;Tras esto puedes visitar &lt;a href=&#34;http://localhost:8888&#34;&gt;http://localhost:8888&lt;/a&gt; y verás un phpinfo.&lt;/p&gt;
 
 &lt;p&gt;Si visitas &lt;a href=&#34;http://localhost:8888/example.php&#34;&gt;http://localhost:8888/example.php&lt;/a&gt; verás un ejemplo simple de query a Postgres.&lt;/p&gt;
+
+&lt;p&gt;El código lo tenéis aquí &lt;a href=&#34;https://github.com/jmvargas/docker-compose-php-stack&#34;&gt;https://github.com/jmvargas/docker-compose-php-stack&lt;/a&gt;&lt;/p&gt;
 </description>
     </item>
     
