@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <title>Stack Docker para aplicaciones PHP &middot; Blog personal de Jesús Vargas</title>
+    <meta name="generator" content="Hugo 0.18.1" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="author" content="Jesús Vargas">
+    
+      <meta name="description" content="Go, PHP, Docker, deep learning y otras drogas.">
+    
+    
+    <link rel="canonical" href="https://jmvargas.github.io/2017/02/15/stack-docker-para-aplicaciones-php"/>
+    <link rel="icon" href="https://jmvargas.github.io/favicon.ico">
+    <link rel="apple-touch-icon" href="https://jmvargas.github.io/apple-touch-icon.png"/>
+    <link rel="stylesheet" href="https://jmvargas.github.io/css/style.css">
+    <link rel="stylesheet" href="https://jmvargas.github.io/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://jmvargas.github.io/css/monokai.css">
+    <link rel="stylesheet" href="https://jmvargas.github.io/fancybox/jquery.fancybox.css">
+    
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400italic,400,600' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Source+Code+Pro' rel='stylesheet' type='text/css'>
+    <meta property="og:title" content="Stack Docker para aplicaciones PHP" />
+<meta property="og:description" content="En este, mi primer post os presento una simple y ligera stack usando Nginx, PHP-fpm y Postgres que, al menos a mí, me resulta muy útil para desarrollar aplicaciones PHP.
+Es un entorno pensado para usar en desarrollo y facilitar la transición a producción o a un entorno para ejecutar tests.
+Todos los containers de la stack están basados en la distro Alpine linux (~5Mb). Por lo que hace que esta stack sea idónea para escalar tu app de manera horizontal lanzando varios containers con herramientas como Docker swarm o Kubernetes." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://jmvargas.github.io/2017/02/15/stack-docker-para-aplicaciones-php" />
+
+
+<meta property="og:updated_time" content="2017-02-15T23:07:31&#43;01:00"/>
+
+
+
+
+
+
+
+
+
+
+    
+    
+<meta itemprop="name" content="Stack Docker para aplicaciones PHP">
+<meta itemprop="description" content="En este, mi primer post os presento una simple y ligera stack usando Nginx, PHP-fpm y Postgres que, al menos a mí, me resulta muy útil para desarrollar aplicaciones PHP.
+Es un entorno pensado para usar en desarrollo y facilitar la transición a producción o a un entorno para ejecutar tests.
+Todos los containers de la stack están basados en la distro Alpine linux (~5Mb). Por lo que hace que esta stack sea idónea para escalar tu app de manera horizontal lanzando varios containers con herramientas como Docker swarm o Kubernetes.">
+
+
+<meta itemprop="dateModified" content="2017-02-15T23:07:31&#43;01:00" />
+<meta itemprop="wordCount" content="429">
+
+
+
+<meta itemprop="keywords" content="stacks,docker,nginx,php,postgres," />
+
+    
+
+  <meta name="twitter:card" content="summary"/>
+
+
+
+<meta name="twitter:title" content="Stack Docker para aplicaciones PHP"/>
+<meta name="twitter:description" content="En este, mi primer post os presento una simple y ligera stack usando Nginx, PHP-fpm y Postgres que, al menos a mí, me resulta muy útil para desarrollar aplicaciones PHP.
+Es un entorno pensado para usar en desarrollo y facilitar la transición a producción o a un entorno para ejecutar tests.
+Todos los containers de la stack están basados en la distro Alpine linux (~5Mb). Por lo que hace que esta stack sea idónea para escalar tu app de manera horizontal lanzando varios containers con herramientas como Docker swarm o Kubernetes."/>
+<meta name="twitter:site" content="@jesusmvargas91"/>
+
+
+    
+
+    
+
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+</head>
+<body>
+<div class="container">
+
+
+<div id="container">
+	<header id="header">
+  <div id="header-main" class="header-inner">
+    <div class="outer">
+      <a href="https://jmvargas.github.io/" id="logo">
+          
+          <i class="logo" style="background-image: url('https://jmvargas.github.io/css/images/logo.png')"></i>
+          
+          <span class="site-title">Blog personal de Jesús Vargas</span>
+      </a>
+      <nav id="main-nav">
+
+          
+          
+          <a class="main-nav-link" href="https://jmvargas.github.io/">Inicio</a>
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+
+          
+
+          
+          
+          
+          
+          <a class="main-nav-link" href="https://jmvargas.github.io/cv/">CV</a>
+          
+          
+          
+          <a class="main-nav-link" href="https://jmvargas.github.io/tags/">Etiquetas</a>
+          
+          
+          
+          <a class="main-nav-link" href="https://jmvargas.github.io/categories/">Categorias</a>
+          
+          
+          
+          <a class="main-nav-link" href="https://jmvargas.github.io/contact/">Contacto</a>
+          
+          
+      </nav>
+        <nav id="sub-nav">
+          <div class="profile" id="profile-nav">
+            <a id="profile-anchor" href="javascript:;"><img class="avatar" src="https://jmvargas.github.io/avatar.jpeg"><i class="fa fa-caret-down"></i></a>
+          </div>
+        </nav>
+        <div id="search-form-wrap">
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form">
+              <input type="search" name="q" class="search-form-input" placeholder="Búsqueda">
+              <button type="submit" class="search-form-submit">
+              </button>
+              <input type="hidden" name="sitesearch" value="https://jmvargas.github.io/" />
+         </form>
+        </div>
+    </div>
+  </div>
+  <div id="main-nav-mobile" class="header-sub header-inner">
+    <table class="menu outer">
+      <tbody>
+          <tr>
+          
+          
+          <td><a class="main-nav-link" href="https://jmvargas.github.io/">Inicio</a></td>
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+
+          
+
+          
+          
+          
+          
+          <td><a class="main-nav-link" href="https://jmvargas.github.io/cv/">CV</a></td>
+          
+          
+          
+          <td><a class="main-nav-link" href="https://jmvargas.github.io/tags/">Etiquetas</a></td>
+          
+          
+          
+          <td><a class="main-nav-link" href="https://jmvargas.github.io/categories/">Categorias</a></td>
+          
+          
+          
+          <td><a class="main-nav-link" href="https://jmvargas.github.io/contact/">Contacto</a></td>
+          
+          
+          <td>
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form">
+          <input type="search" name="q" class="search-form-input" placeholder="Search">
+          <input type="hidden" name="sitesearch" value="https://jmvargas.github.io/" />
+          </form>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</header>
+
+   	
+   	<div class="outer">
+   		
+	    <aside id="profile">
+  <div class="inner profile-inner">
+    <div class="base-info profile-block">
+      <img id="avatar" src="https://jmvargas.github.io/avatar.jpeg">
+      <h2 id="name">Jesús Vargas</h2>
+      <h3 id="title">Blogger - Developer - Gopher</h3>
+      <span id="location"><i class="fa fa-map-marker"></i>Sevilla</span>
+      
+          <a id="follow" href="https://github.com/jmvargas">
+              Seguir
+          </a>
+      
+    </div>
+    <div class="article-info profile-block">
+      <div class="article-info-block">
+        1
+        <span>Posts</span>
+      </div>
+      <div class="article-info-block">
+        
+          4
+        
+        <span>
+            Etiquetas
+        </span>
+      </div>
+    </div>
+    <div class="profile-block social-links">
+      <table>
+        <tr>
+          
+<td><a href="//github.com/jmvargas" target="_blank" title="GitHub"><i class="fa fa-github"></i></a></td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<td><a href="//twitter.com/jesusmvargas91" target="_blank" title="Twitter"><i class="fa fa-twitter"></i></a></td>
+
+
+          <td><a href="https://jmvargas.github.io/index.xml" target="_blank" title="RSS"><i class="fa fa-rss"></i></a></td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</aside>
+
+	    
+
+	    
+<section id="main">
+
+    <article id="page-undefined" class="article article-type-page" itemscope="" itemprop="blogPost">
+        <div class="article-inner">
+            
+                <img src="https://jmvargas.github.io/img/containers.jpeg" class="article-banner">
+            
+
+            <header class="article-header">
+    <a href="https://jmvargas.github.io/2017/02/15/stack-docker-para-aplicaciones-php">
+    <h1 class="article-title" itemprop="name">
+        Stack Docker para aplicaciones PHP
+    </h1>
+    </a>
+    <div class="article-meta">
+
+        
+        <div class="article-date">
+            <i class="fa fa-calendar"></i>
+            <time datetime="2017-02-15 23:07:31 &#43;0100 CET" itemprop="datePublished">15/02/2017</time>
+            &middot;
+            429
+            palabras
+            &middot;
+            3
+            minutos
+        </div>
+        
+        
+            
+            
+            <div class="article-category">
+                <i class="fa fa-folder"></i>
+                
+                
+                <a class="article-category-link" href="https://jmvargas.github.io/categories/stacks">Stacks</a>
+                
+                
+            </div>
+            
+        
+
+        
+            
+            
+            <div class="article-category">
+                <i class="fa fa-tags"></i>
+                
+                
+                <a class="article-category-link" href="https://jmvargas.github.io/tags/docker">Docker</a>
+                &middot;
+                
+                
+                <a class="article-category-link" href="https://jmvargas.github.io/tags/php">PHP</a>
+                &middot;
+                
+                
+                <a class="article-category-link" href="https://jmvargas.github.io/tags/postgres">Postgres</a>
+                &middot;
+                
+                
+                <a class="article-category-link" href="https://jmvargas.github.io/tags/nginx">Nginx</a>
+                
+                
+            </div>
+            
+        
+    </div>
+</header>
+
+            <div class="article-entry" itemprop="articleBody">
+                
+
+<p>En este, mi primer post os presento una simple y ligera stack usando Nginx, PHP-fpm y Postgres que, al menos a mí, me resulta muy útil para desarrollar aplicaciones PHP.</p>
+
+<p>Es un entorno pensado para usar en desarrollo y facilitar la transición a producción o a un entorno para ejecutar tests.</p>
+
+<p>Todos los containers de la stack están basados en la distro Alpine linux (~5Mb). Por lo que hace que esta stack sea idónea para escalar tu app de manera horizontal lanzando varios containers con herramientas como Docker swarm o Kubernetes.</p>
+
+<h2 id="estructura-de-la-stack">Estructura de la stack</h2>
+
+<pre><code>├── app
+│   ├── example.php # Example querying database
+│   └── index.php # phpinfo
+├── docker-compose.yml
+├── log # (Created after run docker-compose)
+│   ├── nginx # Nginx logs
+│   └── php-fmp # PHP logs
+├── .data # (Created after run docker-compose)
+│   └── db # Database data
+├── nginx
+│   └── vhost.conf # VirtualHost conf file for Nginx
+└── php-fpm
+    ├── Dockerfile # PHP docker image, modify it to add PHP extensions, for example
+    ├── php-fpm.conf # PHP-fpm conf file
+    └── php.ini # php.ini file
+</code></pre>
+
+<p>La parte principal es el archivo docker-compose.yml. Analizémoslo por partes:</p>
+
+<pre><code>  # Postgres
+  db:
+    restart: always
+    image: postgres:9-alpine
+    ports:
+      - &quot;5432:5432&quot;
+    environment:    
+      POSTGRES_DB: database
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    volumes:
+      - .data/db:/var/lib/postgresql/data
+</code></pre>
+
+<p>Con este código lanzamos un container Postgres, mapeamos el puerto 5432 del container al puerto 5432 del host, creamos una base de datos (sólo la primera vez que lo arranquemos) y nos aseguramos que los datos de la base de datos queden en .data/db para no perderlos en caso de eliminar el container.</p>
+
+<pre><code>  # PHP
+  phpfpm:
+    restart: always
+    build: php-fpm
+    volumes:
+      - ./php-fpm/php-fpm.conf:/usr/local/etc/php-fpm.conf
+      - ./php-fpm/php.ini:/usr/local/etc/php/php.ini
+      - ./app:/var/www/html
+      - ./log/php-fpm:/var/log/php-fpm
+    links:
+      - db:db
+</code></pre>
+
+<p>Este código construye el Dockerfile de dentro del directorio php-fpm, monta el directorio app en /var/www/html, monta también algunos archivos de configuración y enlaza este container con el de la base de datos.</p>
+
+<p>El archivo Dockerfile sólo se debería tocar para instalar nuevas extensiones de PHP.</p>
+
+<p>Desde este container se podrán hacer peticiones al Postgres usando el host <em>db</em>.</p>
+
+<pre><code>  # Nginx
+  nginx:
+    restart: always
+    image: nginx:1-alpine
+    ports:
+      - &quot;8888:80&quot;
+    links:
+      - phpfpm:phpfpm
+    volumes:
+      - ./nginx/vhost.conf:/etc/nginx/conf.d/default.conf
+      - ./app:/var/www/html
+      - ./log/nginx:/var/log/nginx
+</code></pre>
+
+<p>Aquí se lanza un Nginx, montando el directorio app y algunos archivos de configuración. Además se configura un enlace con el container phpfpm y se mapea el puerto 80 del container al 8888 del host.</p>
+
+<h2 id="ejecución">Ejecución</h2>
+
+<p>Para levantar los distintos servicios sólo basta con ejecutar:</p>
+
+<pre><code>docker-compose up
+</code></pre>
+
+<p>Tras esto puedes visitar <a href="http://localhost:8888">http://localhost:8888</a> y verás un phpinfo.</p>
+
+<p>Si visitas <a href="http://localhost:8888/example.php">http://localhost:8888/example.php</a> verás un ejemplo simple de query a Postgres.</p>
+
+            </div>
+            <footer class="article-footer">
+    <a data-url="https://jmvargas.github.io/2017/02/15/stack-docker-para-aplicaciones-php" data-id="91bcfdbb8c505840996b528701efe1a2" class="article-share-link">
+        <i class="fa fa-share"></i>
+        Compartir
+    </a>
+    
+    <a href="https://jmvargas.github.io/2017/02/15/stack-docker-para-aplicaciones-php#disqus_thread" class="article-comment-link">
+        Comentar
+    </a>
+    
+
+    <script>
+    (function ($) {
+        
+        if (typeof(__SHARE_BUTTON_BINDED__) === 'undefined' || !__SHARE_BUTTON_BINDED__) {
+            __SHARE_BUTTON_BINDED__ = true;
+        } else {
+            return;
+        }
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="fa fa-twitter article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="fa fa-facebook article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="fa fa-pinterest article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="fa fa-google article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+    </script>
+</footer>
+
+        </div>
+
+        
+
+    </article>
+
+    
+    <section id="comments">
+        <div id="disqus_thread">
+            <div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_shortname = 'blog-personal-de-jesus-vargas';
+    var disqus_identifier = 'https:\/\/jmvargas.github.io\/2017\/02\/15\/stack-docker-para-aplicaciones-php';
+    var disqus_title = 'Stack Docker para aplicaciones PHP';
+    var disqus_url = 'https:\/\/jmvargas.github.io\/2017\/02\/15\/stack-docker-para-aplicaciones-php';
+
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+        </div>
+    </section>
+    
+</section>
+
+
+	    
+	    <aside id="sidebar">
+    
+<div class="widget-wrap">
+    <h3 class="widget-title">
+        Más recientes
+    </h3>
+    <div class="widget">
+        <ul id="recent-post">
+            
+            <li>
+                <div class="item-thumbnail">
+                    <a href="https://jmvargas.github.io/2017/02/15/stack-docker-para-aplicaciones-php" class="thumbnail">
+                    
+                        <span style="background-image:url(https://jmvargas.github.io/img/containers.jpeg)" alt="Stack Docker para aplicaciones PHP" class="thumbnail-image"></span>
+                    
+                    </a>
+                </div>
+                <div class="item-inner">
+                    
+                    
+                    <p class="item-category">
+                        
+                        <a class="article-category-link" href="https://jmvargas.github.io/categories/stacks">
+                        Stacks
+                        </a>
+                    </p>
+                    
+                    
+                    <p class="item-title"><a href="https://jmvargas.github.io/2017/02/15/stack-docker-para-aplicaciones-php" class="title">Stack Docker para aplicaciones PHP</a></p>
+                    <p class="item-date">
+                        <time datetime="2017-02-15 23:07:31 &#43;0100 CET" itemprop="datePublished">15/02/2017</time>
+                    </p>
+                </div>
+            </li>
+            
+        </ul>
+    </div>
+</div>
+
+
+    
+
+
+<div class="widget-wrap">
+    <h3 class="widget-title">Categorias</h3>
+    <div class="widget">
+        <ul class="category-list">
+            
+            <li class="category-list-item">
+                
+                <a class="category-list-link" href="https://jmvargas.github.io/categories/stacks">
+                    stacks
+                </a>
+                <span class="category-list-count">1</span>
+            </li>
+            
+        </ul>
+    </div>
+</div>
+
+
+
+
+    
+
+
+<div class="widget-wrap">
+    <h3 class="widget-title">
+        Etiquetas
+    </h3>
+    <div class="widget">
+        <ul class="category-list">
+            
+            <li class="category-list-item">
+                
+                <a class="category-list-link" href="https://jmvargas.github.io/tags/docker">
+                    docker
+                </a>
+                <span class="category-list-count">1</span>
+            </li>
+            
+            <li class="category-list-item">
+                
+                <a class="category-list-link" href="https://jmvargas.github.io/tags/nginx">
+                    nginx
+                </a>
+                <span class="category-list-count">1</span>
+            </li>
+            
+            <li class="category-list-item">
+                
+                <a class="category-list-link" href="https://jmvargas.github.io/tags/php">
+                    php
+                </a>
+                <span class="category-list-count">1</span>
+            </li>
+            
+            <li class="category-list-item">
+                
+                <a class="category-list-link" href="https://jmvargas.github.io/tags/postgres">
+                    postgres
+                </a>
+                <span class="category-list-count">1</span>
+            </li>
+            
+        </ul>
+    </div>
+</div>
+
+
+
+
+    
+
+
+<div class="widget-wrap">
+    <h3 class="widget-title">
+        Nube de etiquetas
+    </h3>
+    <div class="widget tagcloud">
+        
+        
+        <a href="https://jmvargas.github.io/tags/docker" style="font-size: 12px;">docker</a>
+        
+        
+        <a href="https://jmvargas.github.io/tags/nginx" style="font-size: 12px;">nginx</a>
+        
+        
+        <a href="https://jmvargas.github.io/tags/php" style="font-size: 12px;">php</a>
+        
+        
+        <a href="https://jmvargas.github.io/tags/postgres" style="font-size: 12px;">postgres</a>
+        
+    </div>
+</div>
+
+
+
+
+
+    <div id="toTop" class="fa fa-angle-up"></div>
+</aside>
+
+	    
+	</div>
+</div>
+
+<footer id="footer">
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2017
+      Powered by <a href="//gohugo.io">Hugo</a>.
+    </div>
+  </div>
+</footer>
+
+
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-92074404-1', 'auto');
+ga('send', 'pageview');
+</script>
+
+<script src="https://jmvargas.github.io/fancybox/jquery.fancybox.pack.js"></script>
+<script src="https://jmvargas.github.io/js/script.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/highlight.min.js"></script>
+
+
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']]}
+  });
+</script>
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+
+
+</body>
+</html>

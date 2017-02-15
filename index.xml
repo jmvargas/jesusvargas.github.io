@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Blog personal de Jesús Vargas</title>
+    <link>https://jmvargas.github.io/index.xml</link>
+    <description>Recent content on Blog personal de Jesús Vargas</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>es</language>
+    <copyright>Powered by [Hugo](//gohugo.io).</copyright>
+    <lastBuildDate>Wed, 15 Feb 2017 23:07:31 +0100</lastBuildDate>
+    <atom:link href="https://jmvargas.github.io/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Stack Docker para aplicaciones PHP</title>
+      <link>https://jmvargas.github.io/2017/02/15/stack-docker-para-aplicaciones-php</link>
+      <pubDate>Wed, 15 Feb 2017 23:07:31 +0100</pubDate>
+      
+      <guid>https://jmvargas.github.io/2017/02/15/stack-docker-para-aplicaciones-php</guid>
+      <description>
+
+&lt;p&gt;En este, mi primer post os presento una simple y ligera stack usando Nginx, PHP-fpm y Postgres que, al menos a mí, me resulta muy útil para desarrollar aplicaciones PHP.&lt;/p&gt;
+
+&lt;p&gt;Es un entorno pensado para usar en desarrollo y facilitar la transición a producción o a un entorno para ejecutar tests.&lt;/p&gt;
+
+&lt;p&gt;Todos los containers de la stack están basados en la distro Alpine linux (~5Mb). Por lo que hace que esta stack sea idónea para escalar tu app de manera horizontal lanzando varios containers con herramientas como Docker swarm o Kubernetes.&lt;/p&gt;
+
+&lt;h2 id=&#34;estructura-de-la-stack&#34;&gt;Estructura de la stack&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;├── app
+│   ├── example.php # Example querying database
+│   └── index.php # phpinfo
+├── docker-compose.yml
+├── log # (Created after run docker-compose)
+│   ├── nginx # Nginx logs
+│   └── php-fmp # PHP logs
+├── .data # (Created after run docker-compose)
+│   └── db # Database data
+├── nginx
+│   └── vhost.conf # VirtualHost conf file for Nginx
+└── php-fpm
+    ├── Dockerfile # PHP docker image, modify it to add PHP extensions, for example
+    ├── php-fpm.conf # PHP-fpm conf file
+    └── php.ini # php.ini file
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;La parte principal es el archivo docker-compose.yml. Analizémoslo por partes:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;  # Postgres
+  db:
+    restart: always
+    image: postgres:9-alpine
+    ports:
+      - &amp;quot;5432:5432&amp;quot;
+    environment:    
+      POSTGRES_DB: database
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    volumes:
+      - .data/db:/var/lib/postgresql/data
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Con este código lanzamos un container Postgres, mapeamos el puerto 5432 del container al puerto 5432 del host, creamos una base de datos (sólo la primera vez que lo arranquemos) y nos aseguramos que los datos de la base de datos queden en .data/db para no perderlos en caso de eliminar el container.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;  # PHP
+  phpfpm:
+    restart: always
+    build: php-fpm
+    volumes:
+      - ./php-fpm/php-fpm.conf:/usr/local/etc/php-fpm.conf
+      - ./php-fpm/php.ini:/usr/local/etc/php/php.ini
+      - ./app:/var/www/html
+      - ./log/php-fpm:/var/log/php-fpm
+    links:
+      - db:db
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Este código construye el Dockerfile de dentro del directorio php-fpm, monta el directorio app en /var/www/html, monta también algunos archivos de configuración y enlaza este container con el de la base de datos.&lt;/p&gt;
+
+&lt;p&gt;El archivo Dockerfile sólo se debería tocar para instalar nuevas extensiones de PHP.&lt;/p&gt;
+
+&lt;p&gt;Desde este container se podrán hacer peticiones al Postgres usando el host &lt;em&gt;db&lt;/em&gt;.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;  # Nginx
+  nginx:
+    restart: always
+    image: nginx:1-alpine
+    ports:
+      - &amp;quot;8888:80&amp;quot;
+    links:
+      - phpfpm:phpfpm
+    volumes:
+      - ./nginx/vhost.conf:/etc/nginx/conf.d/default.conf
+      - ./app:/var/www/html
+      - ./log/nginx:/var/log/nginx
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Aquí se lanza un Nginx, montando el directorio app y algunos archivos de configuración. Además se configura un enlace con el container phpfpm y se mapea el puerto 80 del container al 8888 del host.&lt;/p&gt;
+
+&lt;h2 id=&#34;ejecución&#34;&gt;Ejecución&lt;/h2&gt;
+
+&lt;p&gt;Para levantar los distintos servicios sólo basta con ejecutar:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;docker-compose up
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Tras esto puedes visitar &lt;a href=&#34;http://localhost:8888&#34;&gt;http://localhost:8888&lt;/a&gt; y verás un phpinfo.&lt;/p&gt;
+
+&lt;p&gt;Si visitas &lt;a href=&#34;http://localhost:8888/example.php&#34;&gt;http://localhost:8888/example.php&lt;/a&gt; verás un ejemplo simple de query a Postgres.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Contacto</title>
+      <link>https://jmvargas.github.io/contact/</link>
+      <pubDate>Tue, 14 Feb 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://jmvargas.github.io/contact/</guid>
+      <description>&lt;!-- Change the width and height values to suit you best --&gt;
+
+&lt;div class=&#34;typeform-widget&#34; data-url=&#34;https://estudiantejm.typeform.com/to/oozhdm&#34; data-text=&#34;Contact Form&#34; style=&#34;width:100%;height:500px;&#34;&gt;&lt;/div&gt;
+&lt;script&gt;(function(){var qs,js,q,s,d=document,gi=d.getElementById,ce=d.createElement,gt=d.getElementsByTagName,id=&#39;typef_orm&#39;,b=&#39;https://s3-eu-west-1.amazonaws.com/share.typeform.com/&#39;;if(!gi.call(d,id)){js=ce.call(d,&#39;script&#39;);js.id=id;js.src=b+&#39;widget.js&#39;;q=gt.call(d,&#39;script&#39;)[0];q.parentNode.insertBefore(js,q)}})()&lt;/script&gt;
+&lt;div style=&#34;font-family: Sans-Serif;font-size: 12px;color: #999;opacity: 0.5; padding-top: 5px;&#34;&gt;&lt;a href=&#34;https://www.typeform.com/examples/forms/contact-form-template/?utm_campaign=oozhdm&amp;amp;utm_source=typeform.com-627869-Basic&amp;amp;utm_medium=typeform&amp;amp;utm_content=typeform-embedded-contactform&amp;amp;utm_term=EN&#34; style=&#34;color: #999&#34; target=&#34;_blank&#34;&gt;Contact form&lt;/a&gt;powered by Typeform&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Currículum</title>
+      <link>https://jmvargas.github.io/cv/</link>
+      <pubDate>Tue, 14 Feb 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://jmvargas.github.io/cv/</guid>
+      <description>
+
+&lt;h2 id=&#34;sobre-mí&#34;&gt;Sobre mí&lt;/h2&gt;
+
+&lt;p&gt;Actualmente me encuentro trabajando de desarrollador senior - devops en &lt;a href=&#34;http://ximdex.com&#34;&gt;Ximdex&lt;/a&gt;. Me considero una persona muy interasada por la tecnología y por todo lo que abarca, me encanta conocer de todo. Es muy raro el dia que no leo un post en un blog o no analizo un repositorio de código.&lt;/p&gt;
+
+&lt;h2 id=&#34;conocimientos&#34;&gt;Conocimientos&lt;/h2&gt;
+
+&lt;p&gt;Tengo conocimientos en muy diversos campos. Lenguajes de programación que domino &lt;a href=&#34;https://www.java.com/es/&#34;&gt;Java&lt;/a&gt;, Javascript, &lt;a href=&#34;https://golang.org/&#34;&gt;Go&lt;/a&gt;, &lt;a href=&#34;http://www.groovy-lang.org/&#34;&gt;Groovy&lt;/a&gt;, &lt;a href=&#34;http://php.net/&#34;&gt;PHP&lt;/a&gt; o &lt;a href=&#34;https://www.python.org/&#34;&gt;Python&lt;/a&gt; entre otros. He usado frameworks como &lt;a href=&#34;https://angularjs.org/&#34;&gt;AngularJS&lt;/a&gt;, &lt;a href=&#34;http://expressjs.com/&#34;&gt;ExpressJS&lt;/a&gt;, &lt;a href=&#34;https://grails.org/&#34;&gt;Grails&lt;/a&gt;, &lt;a href=&#34;https://jquery.com/&#34;&gt;jQuery&lt;/a&gt;, &lt;a href=&#34;https://laravel.com/&#34;&gt;Laravel&lt;/a&gt;, &lt;a href=&#34;https://facebook.github.io/react/&#34;&gt;ReactJS&lt;/a&gt;, &lt;a href=&#34;https://spring.io/&#34;&gt;Spring&lt;/a&gt;, &lt;a href=&#34;https://symfony.com/&#34;&gt;Symfony&lt;/a&gt; y &lt;a href=&#34;http://getbootstrap.com/&#34;&gt;Bootstrap&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Tengo experiencia con bases de datos relacionales tanto como NoSQL, ejemplos &lt;a href=&#34;https://www.mysql.com/&#34;&gt;MySQL&lt;/a&gt;, &lt;a href=&#34;https://www.postgresql.org/&#34;&gt;Posgres&lt;/a&gt;, &lt;a href=&#34;https://www.mongodb.com/&#34;&gt;MongoDB&lt;/a&gt;, &lt;a href=&#34;https://neo4j.com/&#34;&gt;Neo4J&lt;/a&gt;, &lt;a href=&#34;http://cassandra.apache.org/&#34;&gt;Cassandra&lt;/a&gt; o &lt;a href=&#34;https://www.influxdata.com/&#34;&gt;InfluxDB&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;He trabajado usando motores de búsqueda como &lt;a href=&#34;http://lucene.apache.org/solr/&#34;&gt;Solr&lt;/a&gt; o &lt;a href=&#34;www.elastic.co/&#34;&gt;Elasticsearch&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;He montado sistemas usando microservicios en containers de &lt;a href=&#34;https://www.docker.com/&#34;&gt;Docker&lt;/a&gt; o pods de &lt;a href=&#34;https://kubernetes.io/&#34;&gt;Kubernetes&lt;/a&gt;. Además tengo experiencia montando servicios en la nube de &lt;a href=&#34;https://aws.amazon.com/&#34;&gt;Amazon (AWS)&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Uno de mis intereses además es el machine learning, tengo experiencia usando algunos frameworks como &lt;a href=&#34;https://keras.io/&#34;&gt;Keras&lt;/a&gt; o &lt;a href=&#34;http://torch.ch/&#34;&gt;Torch&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;También he usado CMS como &lt;a href=&#34;https://www.drupal.org/&#34;&gt;Drupal&lt;/a&gt;, &lt;a href=&#34;https://www.joomla.org/&#34;&gt;Joomla&lt;/a&gt; o &lt;a href=&#34;https://wordpress.org/&#34;&gt;WordPress&lt;/a&gt;. En cuanto desarrollo para aplicaciones móviles he desarrollado de manera nativa para &lt;a href=&#34;https://developer.android.com/&#34;&gt;Android&lt;/a&gt;, por otra parte he usado frameworks como &lt;a href=&#34;https://ionicframework.com/&#34;&gt;Ionic&lt;/a&gt; o &lt;a href=&#34;https://facebook.github.io/react-native/&#34;&gt;React Native&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;En cuanto a diseño de hardware, tengo conocimientos de &lt;a href=&#34;https://es.wikipedia.org/wiki/VHDL&#34;&gt;VHDL&lt;/a&gt; y &lt;a href=&#34;https://es.wikipedia.org/wiki/Verilog&#34;&gt;Verilog&lt;/a&gt;, también tengo conocimientos de programación para placas comerciales como &lt;a href=&#34;https://www.arduino.cc/&#34;&gt;Arduino&lt;/a&gt; y &lt;a href=&#34;https://www.raspberrypi.org/&#34;&gt;Raspberry Pi&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&#34;experiencia&#34;&gt;Experiencia&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://ximdex.com&#34;&gt;Open Ximdex Evolution&lt;/a&gt; (desde mayo de 2014 y actualmente en ella) desarrollando la función de desarrollador senior - devops de un &lt;a href=&#34;https://github.com/ximdex/ximdex&#34;&gt;CMS libre&lt;/a&gt; en PHP.&lt;/p&gt;
+
+&lt;h2 id=&#34;formación&#34;&gt;Formación&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;UNIVERSIDAD DE SEVILLA – INGENIERÍA EN INFORMÁTICA SUPERIOR (2009 A 2014). Nota media expediente: 7,12&lt;/li&gt;
+&lt;li&gt;UNIVERSIDAD DE SEVILLA – MÁSTER PROPIO EN DESARROLLO DE APLICACIONES PARA INTERNET Y DISPOSITIVOS MÓVILES (2015)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;idiomas&#34;&gt;Idiomas&lt;/h2&gt;
+
+&lt;p&gt;Aparte del español, no tengo problemas para leer libros o redactar documentos en inglés.&lt;/p&gt;
+
+&lt;h3 id=&#34;datos-de-interés&#34;&gt;Datos de interés&lt;/h3&gt;
+
+&lt;p&gt;Dispongo de permiso de conducir B y vehículo propio.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
