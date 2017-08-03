@@ -2,20 +2,20 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Blog personal de Jesús Vargas</title>
-    <link>https://jmvargas.github.io/index.xml</link>
+    <link>//jmvargas.github.io/index.xml</link>
     <description>Recent content on Blog personal de Jesús Vargas</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>es</language>
     <copyright>Powered by [Hugo](//gohugo.io).</copyright>
     <lastBuildDate>Wed, 15 Feb 2017 23:07:31 +0100</lastBuildDate>
-    <atom:link href="https://jmvargas.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="//jmvargas.github.io/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Stack Docker para aplicaciones PHP</title>
-      <link>https://jmvargas.github.io/2017/02/15/stack-docker-para-aplicaciones-php</link>
+      <link>//jmvargas.github.io/2017/02/15/stack-docker-para-aplicaciones-php</link>
       <pubDate>Wed, 15 Feb 2017 23:07:31 +0100</pubDate>
       
-      <guid>https://jmvargas.github.io/2017/02/15/stack-docker-para-aplicaciones-php</guid>
+      <guid>//jmvargas.github.io/2017/02/15/stack-docker-para-aplicaciones-php</guid>
       <description>
 
 &lt;p&gt;En este, mi primer post os presento una simple y ligera stack usando Nginx, PHP-fpm y Postgres que, al menos a mí, me resulta muy útil para desarrollar aplicaciones PHP.&lt;/p&gt;
@@ -113,10 +113,10 @@
     
     <item>
       <title>Contacto</title>
-      <link>https://jmvargas.github.io/contact/</link>
+      <link>//jmvargas.github.io/contact/</link>
       <pubDate>Tue, 14 Feb 2017 00:00:00 +0000</pubDate>
       
-      <guid>https://jmvargas.github.io/contact/</guid>
+      <guid>//jmvargas.github.io/contact/</guid>
       <description>&lt;!-- Change the width and height values to suit you best --&gt;
 
 &lt;div class=&#34;typeform-widget&#34; data-url=&#34;https://estudiantejm.typeform.com/to/oozhdm&#34; data-text=&#34;Contact Form&#34; style=&#34;width:100%;height:500px;&#34;&gt;&lt;/div&gt;
@@ -127,10 +127,10 @@
     
     <item>
       <title>Currículum</title>
-      <link>https://jmvargas.github.io/cv/</link>
+      <link>//jmvargas.github.io/cv/</link>
       <pubDate>Tue, 14 Feb 2017 00:00:00 +0000</pubDate>
       
-      <guid>https://jmvargas.github.io/cv/</guid>
+      <guid>//jmvargas.github.io/cv/</guid>
       <description>
 
 &lt;h2 id=&#34;sobre-mí&#34;&gt;Sobre mí&lt;/h2&gt;

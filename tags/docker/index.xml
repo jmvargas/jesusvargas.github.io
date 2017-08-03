@@ -2,19 +2,19 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Docker on Blog personal de Jesús Vargas</title>
-    <link>https://jmvargas.github.io/tags/docker/index.xml</link>
+    <link>//jmvargas.github.io/tags/docker/index.xml</link>
     <description>Recent content in Docker on Blog personal de Jesús Vargas</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>es</language>
     <copyright>Powered by [Hugo](//gohugo.io).</copyright>
-    <atom:link href="https://jmvargas.github.io/tags/docker/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="//jmvargas.github.io/tags/docker/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Stack Docker para aplicaciones PHP</title>
-      <link>https://jmvargas.github.io/2017/02/15/stack-docker-para-aplicaciones-php</link>
+      <link>//jmvargas.github.io/2017/02/15/stack-docker-para-aplicaciones-php</link>
       <pubDate>Wed, 15 Feb 2017 23:07:31 +0100</pubDate>
       
-      <guid>https://jmvargas.github.io/2017/02/15/stack-docker-para-aplicaciones-php</guid>
+      <guid>//jmvargas.github.io/2017/02/15/stack-docker-para-aplicaciones-php</guid>
       <description>
 
 &lt;p&gt;En este, mi primer post os presento una simple y ligera stack usando Nginx, PHP-fpm y Postgres que, al menos a mí, me resulta muy útil para desarrollar aplicaciones PHP.&lt;/p&gt;
